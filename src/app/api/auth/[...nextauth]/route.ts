@@ -61,59 +61,59 @@
 
 // // export { handler as GET, handler as POST }
 
-// import NextAuth, { NextAuthOptions } from "next-auth"
-// import CredentialsProvider from "next-auth/providers/credentials"
+import NextAuth, { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
 
-// export const OPTIONS: NextAuthOptions = {
-//   providers: [
-//     CredentialsProvider({
-//       name: "Credentials",
-//       credentials: {
-//         email: { label: "Email", type: "email" },
-//         password: { label: "Password", type: "password" },
-//       },
-//       async authorize(credentials) {
-//         const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/signin", {
-//           method: "POST",
-//           body: JSON.stringify({
-//             email: credentials?.email,
-//             password: credentials?.password,
-//           }),
-//           headers: { "Content-Type": "application/json" },
-//         })
+export const OPTIONS: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/signin", {
+          method: "POST",
+          body: JSON.stringify({
+            email: credentials?.email,
+            password: credentials?.password,
+          }),
+          headers: { "Content-Type": "application/json" },
+        })
 
-//         const user = await res.json()
+        const user = await res.json()
 
-//         if (res.ok && user) {
-//           return user
-//         }
-//         return null
-//       },
-//     }),
-//   ],
+        if (res.ok && user) {
+          return user
+        }
+        return null
+      },
+    }),
+  ],
 
-//   session: {
-//     strategy: "jwt",
-//   },
-//   pages: {
-//     signIn: "/login",
-//   },
-//   callbacks: {
-//     async session({ session, token, user }) {
-//       return { ...session, ...token, ...user }
-//     },
-//     async jwt({ token, user }) {
-//       return { ...token, ...user }
-//     },
-//   },
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async session({ session, token, user }) {
+      return { ...session, ...token, ...user }
+    },
+    async jwt({ token, user }) {
+      return { ...token, ...user }
+    },
+  },
 
-//   // هنا التعديل 👇
-//   secret: process.env.NEXTAUTH_SECRET,
-// }
+  // هنا التعديل 👇
+  secret: process.env.NEXTAUTH_SECRET,
+}
 
-// const handler = NextAuth(OPTIONS)
+const handler = NextAuth(OPTIONS)
 
-// export { handler as GET, handler as POST }
+export { handler as GET, handler as POST }
 
 
 // import NextAuth, { NextAuthOptions } from "next-auth"
@@ -190,79 +190,74 @@
 // const handler = NextAuth(OPTIONS)
 
 // export { handler as GET, handler as POST }
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+// import NextAuth, { NextAuthOptions } from "next-auth"
+// import CredentialsProvider from "next-auth/providers/credentials"
 
-export const OPTIONS: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        try {
-          const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/signin", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-          });
+// export const OPTIONS: NextAuthOptions = {
+//   providers: [
+//     CredentialsProvider({
+//       name: "Credentials",
+//       credentials: {
+//         email: { label: "Email", type: "email" },
+//         password: { label: "Password", type: "password" },
+//       },
+//       async authorize(credentials) {
+//         const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/signin", {
+//           method: "POST",
+//           body: JSON.stringify({
+//             email: credentials?.email,
+//             password: credentials?.password,
+//           }),
+//           headers: { "Content-Type": "application/json" },
+//         })
 
-          const data = await res.json();
+//         const data = await res.json()
 
-          if (!res.ok || data.message !== "success") return null;
+//         if (res.ok && data.message === "success") {
+//           return {
+//             name: data.user.name,
+//             email: data.user.email,
+//             role: data.user.role,
+//             token: data.token, // نخزن التوكن
+//           }
+//         }
 
-          return {
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role,
-            accessToken: data.token, // نحط التوكن هنا باسم واضح
-          };
-        } catch (err) {
-          console.error("Authorize error:", err);
-          return null;
-        }
-      },
-    }),
-  ],
+//         return null
+//       },
+//     }),
+//   ],
 
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/login",
-  },
+//   session: {
+//     strategy: "jwt",
+//   },
+//   pages: {
+//     signIn: "/login",
+//   },
 
-  callbacks: {
-    async jwt({ token, user }) {
-      // أول مرة: نحفظ بيانات اليوزر
-      if (user) {
-        token.name = user.name;
-        token.email = user.email;
-        token.role = user.role;
-        token.accessToken = (user as any).accessToken;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user = {
-        name: token.name as string,
-        email: token.email as string,
-        role: token.role as string,
-      };
-      // نضيف التوكن على الـ session
-      (session as any).accessToken = token.accessToken as string;
-      return session;
-    },
-  },
+//   callbacks: {
+//     async jwt({ token, user }) {
+//       if (user) {
+//         token.name = user.name
+//         token.email = user.email
+//         token.role = user.role
+//         token.token = user.token
+//       }
+//       return token
+//     },
+//     async session({ session, token }) {
+//       session.user = {
+//         name: token.name as string,
+//         email: token.email as string,
+//         role: token.role as string,
+//         token: token.token as string,
+//       }
+//       return session
+//     },
+//   },
 
-  secret: process.env.NEXTAUTH_SECRET,
-};
+//   secret: process.env.NEXTAUTH_SECRET,
+// }
 
-const handler = NextAuth(OPTIONS);
+// const handler = NextAuth(OPTIONS)
 
-export { handler as GET, handler as POST };
+// export { handler as GET, handler as POST }
